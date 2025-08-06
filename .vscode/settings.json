@@ -1,0 +1,5 @@
+{
+    "python.analysis.extraPaths": [
+        "/home/thor-ubuntu/.vscode-server/extensions/ms-security.ms-sentinel-0.1.0/python"
+    ]
+}
