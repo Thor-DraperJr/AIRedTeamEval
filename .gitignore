@@ -1,0 +1,59 @@
+# AI Red Team Evaluation Framework - .gitignore
+# Following anti-sprawl protocol: only essential excludes
+
+# Secrets and API Keys (CRITICAL - never commit)
+*.key
+*.pem
+.env
+.env.*
+secrets/
+keys/
+
+# Azure and Authentication
+.azure/
+azure.json
+service-principal.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.venv/
+venv/
+env/
+
+# Jupyter Notebooks (keep checkpoints clean)
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# VS Code (selective - keep settings)
+.vscode/launch.json
+.vscode/tasks.json
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+temp/
+logs/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Test outputs and generated data (selective)
+# Keep: test_data/ examples for demos
+# Exclude: large evaluation outputs
+evaluation_outputs/
+large_datasets/
+*.large.json
+
+# Azure Function specific (if used)
+local.settings.json
+.azure/
+
+# Node modules (if any JS/TS extensions)
+node_modules/
