@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "description": "Canonical context manifest for AI Red Team Evaluation Framework",
+  "canonical_files": [
+    {"path": "README.md", "role": "primary-doc", "policy": "Single execution + governance"},
+    {"path": "resources.md", "role": "inventory", "policy": "Authoritative resource & RBAC list"},
+    {"path": "AI_RedTeaming/src/AI_RedTeaming.ipynb", "role": "notebook", "policy": "Single execution path"},
+    {"path": ".github/copilot-instructions.md", "role": "agent-contract", "policy": "Operational constraints"},
+    {"path": ".github/prompts/diagnostic.md", "role": "prompt", "policy": "RBAC & networking triage prompt (single source)"},
+    {"path": ".github/context-guard.sh", "role": "hygiene-guard", "policy": "Repo hygiene + forbidden pattern scan"},
+    {"path": ".github/workflows/context-guard.yml", "role": "automation", "policy": "Executes hygiene guard on push/PR"},
+    {"path": "AI_RedTeaming/reference/upstream_sample/DO_NOT_EDIT_REFERENCE.txt", "role": "reference-sentinel", "policy": "Marks upstream sample directory as read-only"},
+    {"path": "infrastructure/main.bicep", "role": "iac-orchestrator", "policy": "Modular infra deployment entrypoint (idempotent)"},
+    {"path": "infrastructure/modules/ai-foundry.bicep", "role": "iac-module", "policy": "Creates or references AI Foundry + project"},
+    {"path": "infrastructure/modules/storage.bicep", "role": "iac-module", "policy": "Creates or references storage account"},
+    {"path": "infrastructure/modules/keyvault.bicep", "role": "iac-module", "policy": "Creates or references Key Vault"},
+    {"path": "infrastructure/modules/openai.bicep", "role": "iac-module", "policy": "Creates or references Azure OpenAI + optional deployments"},
+    {"path": "infrastructure/modules/role-assignments.bicep", "role": "iac-module", "policy": "Applies optional role assignments"}
+  ,{"path": "infrastructure/dev.parameters.json", "role": "iac-parameters", "policy": "Dev environment parameter set"}
+  ,{"path": "infrastructure/modules/custom-role.bicep", "role": "iac-module", "policy": "Optional custom least-privilege role"}
+  ],
+  "deprecated_files": ["QUICKSTART.md"],
+  "forbidden_patterns": [
+    {"regex": "AZURE_OPENAI_KEY=", "reason": "No secrets in repo"},
+    {"regex": "ACCESS_KEY", "reason": "No shared key usage"},
+    {"regex": "SAS_TOKEN", "reason": "Avoid static SAS tokens"}
+  ],
+  "notebook_sections": ["Bootstrap", "Basic", "Intermediary", "Advanced", "Custom Prompts", "Diagnostics Core"],
+  "last_updated": "2025-08-10T12:42:00Z"
+}
