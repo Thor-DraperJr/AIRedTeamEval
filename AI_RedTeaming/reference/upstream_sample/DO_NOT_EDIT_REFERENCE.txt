@@ -1,0 +1,7 @@
+This directory contains upstream sample content from:
+https://github.com/Azure-Samples/azureai-samples/tree/main/scenarios/evaluate/AI_RedTeaming
+
+Purpose: Reference only. Do not modify these files directly.
+If changes are needed for project logic, replicate into new project-specific files outside this 'reference/upstream_sample' directory.
+
+Enforcement: context-guard treats modifications here as read-only candidates. Agents should avoid editing.

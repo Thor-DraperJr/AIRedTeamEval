@@ -1,107 +1,137 @@
-# AI Red Team Evaluation Framework - AI Agent Instructions
+# AI Red Team Evaluation Framework — Agent Instructions (vNext)
 
-## 🚨 ANTI-SPRAWL PROTOCOL: Prevention Over Cleanup
-**CRITICAL**: Prevent bloat before it starts. Question EVERY file creation:
+Mission
+- Run one notebook end-to-end on Azure ML compute against an Azure AI Foundry Project target. No local execution. Minimal files. MCP tools only.
 
-### Before Creating ANY File:
-1. **"Does this already exist?"** → Search existing files first
-2. **"Is this just a wrapper?"** → Use direct commands instead of scripts
-3. **"Will this duplicate content?"** → Consolidate into existing files
-4. **"Can this be one command?"** → Don't script what's already simple
+Source of truth
+- Canonical resources are in resources.md. Never hardcode names here. Read from resources.md and fail fast if missing/incomplete.
+- Declare the active environment (e.g., dev). Abort actions if the inventory is ambiguous.
 
-### Red Flags That Cause Sprawl:
-- ❌ **Wrapper Scripts**: If it's just CLI commands, don't script it
-- ❌ **Meta Documentation**: Docs about docs, guides about guides
-- ❌ **Multiple README files**: One per directory maximum
-- ❌ **"Helper" scripts**: Usually unnecessary complexity
-- ❌ **Template variations**: One template per purpose, use parameters
+Target vs Compute (hard rule)
+- Target: Azure AI Project (what is evaluated).
+- Compute: Azure ML Workspace + compute instance (where notebook runs).
+- Invariant: project != workspace. Abort if violated.
 
-### When to Create Files:
-- ✅ **Complex multi-step processes** that can't be one command
-- ✅ **Reusable templates** with actual parameters
-- ✅ **Essential documentation** that doesn't exist elsewhere
-- ✅ **Configuration files** for tools that require them
+Anti‑sprawl protocol
+- Create nothing unless essential. Update existing docs (resources.md, README.md) instead of adding new files.
+- No wrapper scripts, no meta-docs, no duplicate guides. One clear path only.
 
-## FRONTIER COLLABORATION: Advanced AI-Human Workflow
-Use cutting-edge VS Code + GitHub Copilot capabilities instead of static documentation:
+Azure MCP usage (primary)
+- Use Azure MCP servers for ALL Azure operations (workspaces/compute, storage, RBAC, foundry, groups, subscriptions).
+- Use Microsoft Docs search only to ground error handling or confirm guidance.
+- Do not adopt az CLI as the execution path; reference-only when needed.
 
-### **Dynamic References (VS Code 1.10+)**
-- `@workspace` → Access entire solution context
-- `@[domain]` → Scope to domain-specific resources (e.g., @azure, @aws)
-- `#filename.ext` → Reference specific files
-- `#MethodName` → Reference specific functions/classes
+Permission Validation Protocol (must pass before any red teaming)
+1) Storage account (from resources.md) uses Entra ID (allowSharedKeyAccess=false).
+2) Networking: publicNetworkAccess=Disabled; defaultAction=Allow; bypass=AzureServices. Temporary overrides require explicit user approval and must be reverted post-run.
+3) AI Foundry Project managed identity has Storage Blob Data Contributor on the storage scope in resources.md.
+4) Storage account is connected to the AI Foundry Project at the resource level.
+5) Smoke test: Confirm results visible in the Foundry red teaming section after a run.
 
-### **Reusable Prompt Templates** 
-- `#prompt:session-wrap-up` → Load session completion workflow
-- `#prompt:project-setup` → Load project initialization template
-- Available in `.github/prompts/` folder
+Execution model
+- Notebook: AI_RedTeaming/src/AI_RedTeaming.ipynb.
+- Kernel: Attach to the Azure ML compute instance from resources.md (no local execution).
+- Auth: Use compute SSO/managed identity; never run az login inside the notebook.
 
-### **Live Tool Integration**
-- **Domain CLI Tools**: Real-time resource interaction over static docs
-- **Official Documentation Search**: Current information over outdated context files
-- **Guided Chat**: AI asks clarifying questions vs. assuming context
+Tool cadence & checkpoints
+- After 3–5 tool calls or >3 file edits, checkpoint with: what ran (high level), key results, next step.
+- Provide delta-only updates; don’t restate unchanged plans.
+- End each task with a one-line requirements coverage: Done/Deferred (+ reason).
 
-### **Context Sources (Priority Order)**
-1. **Live resources** via domain CLI tools
-2. **Current workspace** via `@workspace`  
-3. **Official documentation** via docs search
-4. **Proven capabilities** in `.github/context/` (minimal)
+Error handling
+- Up to 3 targeted retries with exponential backoff. Report exact tool + args and resource scope.
+- If still failing, summarize root cause, options, and the precise failing output.
 
-## ALWAYS: Follow AI Red Team Evaluation Framework Patterns
-- **Naming**: [Define your naming conventions]
-- **Structure**: [Define your project structure]
-- **Tools**: [Define preferred tools and commands]
-- **Architecture**: [Define your architectural patterns]
-- **Commands Over Scripts**: Use direct CLI commands instead of wrapper scripts
-- **One Source of Truth**: Single template per capability, no duplicates
+Security posture
+- Default posture: no local execution, AAD-only storage auth, networking restricted as above.
+- Any temporary relaxation requires explicit user approval and rollback immediately after the run.
 
-## PROHIBITED ❌
-- **Wrapper Scripts**: No scripts that just run CLI commands
-- **Duplicate Templates**: One template per capability only
-- **Meta Documentation**: No docs about docs, guides about guides  
-- **Multiple READMEs**: Max one per directory
-- **Monolithic Files**: Keep files focused and modular
-- **Hardcoded Secrets**: Use environment variables and secure storage
-- **Unreliable Tools**: Document and avoid tools with contradictory documentation
+Resource tracking
+- Update resources.md after any resource/permission/networking change: name, type, RG, location, purpose, MI principal IDs, storage links/permissions.
 
-## ✅ PREFERRED PATTERNS
-- **Direct Commands**: CLI commands over wrapper scripts
-- **Simple Documentation**: Commands and examples over lengthy guides
-- **Template Parameters**: One template with parameters vs multiple templates
-- **Consolidated Files**: Merge similar content instead of creating new files
+Success criteria (per run)
+- Evaluation completes on ML kernel against the AI Project target.
+- Results visible in the AI Foundry red teaming UI and persisted in storage.
+- Any temporary networking overrides reverted; resources.md updated.
 
-## PROJECT-SPECIFIC PATTERNS
-**AI Red Team Evaluation Framework** - Security evaluation for generative AI systems
-
-### **Technology Stack**
-- **AI/ML**: Azure AI Foundry + Azure OpenAI + PyRIT (Microsoft AI Red Team framework)
-- **Analytics**: Azure Sentinel + Log Analytics + Application Insights
-- **Data**: JSON-based prompt datasets, Python evaluation clients
-- **Notebooks**: Jupyter notebooks in VS Code with Azure integrations
-
-### **Naming Conventions**
-- **Resources**: `AiRedTeamFoundry` (resource group), `redTeamEvalProject` (AI project)
-- **Files**: `AI_RedTeaming_*.ipynb` (evaluation notebooks), `CopilotStudioClient.py` (API clients)
-- **Data**: `prompts.json` (test datasets), risk categories follow PyRIT taxonomy
-
-### **Evaluation Architecture**
-- **Risk Categories**: Violence, hate/unfairness, sexual content, self-harm (PyRIT framework)
-- **Attack Strategies**: Multi-complexity automated red teaming via Azure AI Evaluation
-- **Integration**: Azure AI Foundry for model evaluation + Sentinel for monitoring/alerting
-- **Execution**: Jupyter notebooks → Azure AI Evaluation → Log Analytics → Sentinel dashboards
-
-### **Quickstart Pattern**
-- **Setup**: VS Code + Azure CLI + Sentinel extension for integrated monitoring
-- **Execution**: Single notebook runs complete evaluation pipeline (30-45 mins)
-- **Results**: Real-time visualization in Sentinel workbooks + evaluation reports
-- **Dependencies**: Azure subscription + AI Foundry project + valid API keys
-
-### **Security & Compliance**
-- **Secrets**: Environment variables for API keys, never hardcoded
-- **Monitoring**: All evaluations logged to Sentinel for audit/compliance
-- **Data**: Prompt datasets stored in Azure Storage with encryption
-- **Access**: RBAC-controlled Azure resources + secure API endpoints
+ThorLabs patterns
+- Naming follows current org practice (e.g., thorlabs-mlws-redteam-dev, thorlabs-project-redteam-dev, thorlabsredteamdev001). Keep names centralized in resources.md to prevent drift.
 
 ---
+## Capability Expansion (Controlled)
+The agent MAY exercise the following additional capabilities IF they directly advance the mission and reduce duplication while preserving single-path execution:
 
-**Maintain Simplicity**: Question every new file against clean structure principles.
+Ephemeral & Helper Artifacts
+- MAY propose creation of at most one helper module (e.g., helper/context_validation.py) per PR if it consolidates ≥30% repeated notebook logic or reduces cell length >40%. Must list in context-manifest.json with role "helper".
+- MAY create ephemeral test or diag artifacts under `.diag/` or `.ephemeral/` (auto-clean intent) only during an active task. These are excluded from long-term docs unless promoted.
+- MUST NOT create new standing guides; README.md + resources.md remain canonical.
+
+Notebook & Execution Model
+- MAY refactor notebook sections into reusable functions (idempotent) while preserving named sections listed in context-manifest.json (Bootstrap, Basic, Intermediary, Advanced, Custom Prompts, Diagnostics Core).
+- MAY generate a headless mirror (single file `AI_RedTeaming/run_headless.py`) ONLY if user requests automation/CI; default is notebook-only.
+
+Adaptive Retry Policy
+- Default retries: 3 (base 2s exponential). For Azure 429 / 5xx: MAY extend to 5 attempts (cap 32s) with jitter if operation is idempotent (read/list/describe). Creation/modification operations remain at 3 unless user approves.
+- After final failure: produce structured failure report (operation, scope, status code, last error excerpt, recommended remediations) before abort.
+
+Resource & Inventory Gaps
+- If a required field missing in resources.md (mandatory keys: environment, projectName, workspaceName, storageAccount, resourceGroup, region, identities[] with type+principalId), agent emits a PROPOSAL block (YAML patch) instead of proceeding blindly.
+- Abort only if ambiguity persists after one proposal cycle or if target==compute invariant violated.
+
+Least Privilege & Role Drafting
+- MAY draft (not apply) custom role JSON if required dataAction (e.g., listAccountSas/action) absent; include rationale + scope + removal plan.
+- All RBAC changes require explicit user approval; track intended delta in resources.md pending section (if added later).
+
+Diagnostics Mode
+- If user sets DIAG=1 (or requests deep debug), agent can:
+	- Emit raw Azure error payload excerpts (sanitized for secrets)
+	- Retain transient logs under `.diag/` (auto-clean suggestion after success)
+	- Expand forbidden pattern scan to show file paths (not contents) for triage
+
+Forbidden Pattern Whitelisting
+- Code/examples containing literal tokens (AZURE_OPENAI_KEY=, ACCESS_KEY, SAS_TOKEN) may be wrapped in fenced blocks starting with comment marker `# allow-patterns` to bypass guard false positives.
+- Agent MAY propose adding such markers rather than removing educational examples.
+
+Batch & Checkpoint Optimization
+- Homogeneous read-only operations (≥5 similar list/get calls) MAY be batched before a single checkpoint summary.
+- MUST still checkpoint after any write-intent (even if failed) or creation proposal.
+
+Local Static Validation Allowance
+- Static analysis (lint/type) MAY run locally if it does not invoke cloud or secrets; results are advisory.
+- No local data-plane calls to Azure services.
+
+Context Manifest Evolution
+- Agent MAY append newly approved helper/diagnostic files to `.github/context-manifest.json` with justification comment.
+- Removal of deprecated entries requires updating last_updated timestamp.
+
+Telemetry & Transparency
+- For each non-trivial Azure operation: record (operation kind, target scope, attempt #, elapsed ms when available) in a transient op log if DIAG=1.
+
+Performance Guardrails
+- Soft budget: avoid >12 parallel Azure list operations in a single batch; if exceeded, split.
+- Apply adaptive backoff when cumulative transient failure rate >30% in recent batch.
+
+Plan Escalation Criteria
+- Escalate from minimal search to semantic sweep when:
+	- Symbol unresolved after 2 targeted grep attempts; or
+	- Cross-file dependency suspected (import present but definition missing locally).
+
+Security Invariants (Reaffirmed)
+- NO secrets checked into repo.
+- Managed identity only (no az login inside notebook).
+- Target != Compute enforced pre-run.
+- Networking and keyless storage posture preserved; any temporary relaxation must include revert plan + timestamp in resources.md.
+
+Success Confirmation Enhancements
+- After run: verify artifact presence + evaluation registration + absence of upload warnings; if warning persists but storage write succeeded, propose auth-mode reconciliation steps.
+
+De-scoping / Cleanup
+- After task success: propose removal of any ephemeral or diag artifacts still present; produce list for user confirmation.
+
+---
+Versioning
+- Increment last_updated in context-manifest.json when capability assumptions change.
+- Include CHANGE NOTE summary in PR description referencing which clauses exercised.
+
+End State Principle
+One notebook, one inventory, minimal helpers, fully auditable actions.
